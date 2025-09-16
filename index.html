@@ -1,3 +1,6 @@
+rrrrrrrrrrrrrHere’s the final no-cache version. Instant fetch on load, correct holder count, CAT endpoints, and 10-minute refresh.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,25 +59,28 @@
   </div>
 
   <script>
+    // --- Config
     const TOKEN_ID = '0957ed359f099d5846c2c74c42e7c2eb9608b58c32e320e144840e3efab0b747';
     const LAUNCH_DATE = '2025-03-12T11:19:31Z';
 
-    // Launch info
-    const launchDateObj=new Date(LAUNCH_DATE);
-    document.getElementById('launchDate').textContent=
-      launchDateObj.toLocaleString(undefined,{year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'UTC'})+' UTC';
-    document.getElementById('days').textContent=
-      Math.floor((Date.now()-launchDateObj.getTime())/(1000*60*60*24)).toString();
+    // --- DOM helpers
+    const E = id => document.getElementById(id);
 
-    // Today
+    // --- Static dates
+    const launchDateObj = new Date(LAUNCH_DATE);
+    E('launchDate').textContent = launchDateObj.toLocaleString(undefined,{
+      year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'UTC'
+    }) + ' UTC';
+    E('days').textContent = Math.floor((Date.now()-launchDateObj.getTime())/(1000*60*60*24)).toString();
+
     function updateCurrentDate(){
-      const now=new Date();
-      document.getElementById('currentDate').textContent=
-        now.toLocaleDateString(undefined,{year:'numeric',month:'numeric',day:'numeric'});
+      E('currentDate').textContent =
+        new Date().toLocaleDateString(undefined,{year:'numeric',month:'numeric',day:'numeric'});
     }
     updateCurrentDate();
+    setInterval(updateCurrentDate, 1000);
 
-    // World clocks
+    // --- World clocks
     const timeZones=[{label:'UTC',zone:'UTC'},{label:'New York',zone:'America/New_York'},{label:'Chicago',zone:'America/Chicago'},{label:'Los Angeles',zone:'America/Los_Angeles'},{label:'London',zone:'Europe/London'},{label:'Paris',zone:'Europe/Paris'},{label:'Dubai',zone:'Asia/Dubai'},{label:'Mumbai',zone:'Asia/Kolkata'},{label:'Beijing',zone:'Asia/Shanghai'},{label:'Tokyo',zone:'Asia/Tokyo'},{label:'Sydney',zone:'Australia/Sydney'}];
     const worldClocksContainer=document.getElementById('worldClocks');
     const clockElements={};
@@ -94,70 +100,80 @@
       });
     }
     updateWorldClocks();
-    setInterval(()=>{updateCurrentDate();updateWorldClocks();},1000);
+    setInterval(updateWorldClocks,1000);
 
-    async function safeJSON(res){try{return await res.json();}catch{return {};}}
+    // --- Networking
+    async function safeJSON(res){ try{ return await res.json(); } catch{ return {}; } }
+
+    // Prefer aggregate holders; fallback to pagination if needed
     async function getHoldersCount(){
       try{
-        const r=await fetch(`https://api.spacescan.io/api/cat/info/${TOKEN_ID}`);
-        const j=await safeJSON(r);
-        const n=parseInt(j.holders ?? j?.data?.holders ?? NaN,10);
-        if(!Number.isNaN(n)&&n>0)return n;
+        const r = await fetch(`https://api.spacescan.io/api/cat/info/${TOKEN_ID}`);
+        const j = await safeJSON(r);
+        const n = parseInt(j.holders ?? j?.data?.holders ?? NaN, 10);
+        if (!Number.isNaN(n) && n > 0) return n;
       }catch{}
-      const paginate=async(qs)=>{
-        let total=0,page=1,size=qs.page_size??qs.size??qs.limit??500;
-        while(true){
-          const url=new URL(`https://api.spacescan.io/api/cat/holders/${TOKEN_ID}`);
-          Object.entries({page,...qs,page_size:size}).forEach(([k,v])=>url.searchParams.set(k,String(v)));
-          const res=await fetch(url.toString());const data=await safeJSON(res);
-          const arr=data.tokens||data.holders||data.result||[];
-          total+=arr.length;if(arr.length<size)break;page+=1;if(page>2000)break;
-        }
-        return total||0;
-      };
-      return (
-        await paginate({page_size:500}).catch(()=>0)||
-        await paginate({size:500}).catch(()=>0)||
-        await paginate({limit:500,offset:0}).catch(()=>0)
-      );
+      // Fallback pagination (kept simple, no cache)
+      let total = 0, page = 1, size = 500;
+      while (true){
+        const url = new URL(`https://api.spacescan.io/api/cat/holders/${TOKEN_ID}`);
+        url.searchParams.set('page', String(page));
+        url.searchParams.set('page_size', String(size));
+        const res = await fetch(url.toString());
+        const data = await safeJSON(res);
+        const arr = data.tokens || data.holders || data.result || [];
+        total += arr.length;
+        if (arr.length < size) break;
+        page += 1;
+        if (page > 2000) break;
+      }
+      return total || 0;
     }
 
     async function fetchTokenData(){
       try{
-        const [circRes,totalRes,priceRes,xchUsdRes]=await Promise.all([
+        const [circRes,totalRes,priceRes,xchUsdRes] = await Promise.all([
           fetch(`https://api.spacescan.io/api/cat/circulating-supply/${TOKEN_ID}`),
           fetch(`https://api.spacescan.io/api/cat/total-supply/${TOKEN_ID}`),
           fetch(`https://api.spacescan.io/api/cat/price/${TOKEN_ID}?currency=XCH`),
           fetch(`https://api.spacescan.io/stats/price?currency=usd`)
         ]);
-        const circData=await safeJSON(circRes);
-        const totalData=await safeJSON(totalRes);
-        const priceData=await safeJSON(priceRes);
-        const xchUsdData=await safeJSON(xchUsdRes);
+        const circData  = await safeJSON(circRes);
+        const totalData = await safeJSON(totalRes);
+        const priceData = await safeJSON(priceRes);
+        const xchUsdData= await safeJSON(xchUsdRes);
 
-        const circVal=parseFloat(circData.circulating_supply ?? circData?.data?.circulating_supply ?? 0);
-        const totalVal=parseFloat(totalData.total_supply ?? totalData?.data?.total_supply ?? 0);
-        const burnedVal=(totalVal&&circVal)?(totalVal-circVal):0;
+        const circVal = parseFloat(circData.circulating_supply ?? circData?.data?.circulating_supply ?? 0);
+        const totalVal= parseFloat(totalData.total_supply       ?? totalData?.data?.total_supply       ?? 0);
+        const burnedVal = (totalVal && circVal) ? (totalVal - circVal) : 0;
 
-        const mirrorPriceXch=parseFloat(priceData.price?.xch ?? priceData?.data?.price?.xch ?? 0);
-        const xchToUsd=parseFloat(xchUsdData.price ?? xchUsdData?.data?.price ?? 0);
-        const priceUsd=mirrorPriceXch*xchToUsd;
+        const mirrorPriceXch = parseFloat(priceData.price?.xch ?? priceData?.data?.price?.xch ?? 0);
+        const xchToUsd       = parseFloat(xchUsdData.price     ?? xchUsdData?.data?.price     ?? 0);
+        const priceUsd       = mirrorPriceXch * xchToUsd;
 
-        const holdersVal=await getHoldersCount();
+        const holdersVal = await getHoldersCount();
 
-        document.getElementById('holders').textContent=holdersVal?holdersVal.toLocaleString():'--';
-        document.getElementById('total').textContent=totalVal?totalVal.toLocaleString():'--';
-        document.getElementById('circ').textContent=circVal?circVal.toLocaleString():'--';
-        document.getElementById('burned').textContent=burnedVal?burnedVal.toLocaleString():'--';
-        document.getElementById('price').textContent=mirrorPriceXch?`${mirrorPriceXch.toFixed(8)} XCH ($${priceUsd.toFixed(4)})`:'--';
-      }catch(e){console.error(e);}
+        // Update UI
+        E('holders').textContent = holdersVal ? holdersVal.toLocaleString() : '--';
+        E('total').textContent   = totalVal    ? totalVal.toLocaleString()   : '--';
+        E('circ').textContent    = circVal     ? circVal.toLocaleString()    : '--';
+        E('burned').textContent  = burnedVal   ? burnedVal.toLocaleString()  : '--';
+        E('price').textContent   = mirrorPriceXch
+          ? `${mirrorPriceXch.toFixed(8)} XCH ($${priceUsd.toFixed(4)})` : '--';
+      }catch(e){ console.error(e); }
     }
 
-    // Populate immediately after DOM is ready
-    document.addEventListener('DOMContentLoaded', () => {
+    // --- Run immediately on load, then every 10 minutes
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        fetchTokenData();
+        setInterval(fetchTokenData, 10*60*1000);
+      });
+    } else {
       fetchTokenData();
-      setInterval(fetchTokenData,10*60*1000);
-    });
+      setInterval(fetchTokenData, 10*60*1000);
+    }
   </script>
 </body>
 </html>
+```
