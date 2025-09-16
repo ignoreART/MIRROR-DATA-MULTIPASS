@@ -59,12 +59,14 @@
     const TOKEN_ID = '0957ed359f099d5846c2c74c42e7c2eb9608b58c32e320e144840e3efab0b747';
     const LAUNCH_DATE = '2025-03-12T11:19:31Z';
 
+    // Launch info
     const launchDateObj=new Date(LAUNCH_DATE);
     document.getElementById('launchDate').textContent=
       launchDateObj.toLocaleString(undefined,{year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'UTC'})+' UTC';
     document.getElementById('days').textContent=
       Math.floor((Date.now()-launchDateObj.getTime())/(1000*60*60*24)).toString();
 
+    // Today
     function updateCurrentDate(){
       const now=new Date();
       document.getElementById('currentDate').textContent=
@@ -72,6 +74,7 @@
     }
     updateCurrentDate();
 
+    // World clocks
     const timeZones=[{label:'UTC',zone:'UTC'},{label:'New York',zone:'America/New_York'},{label:'Chicago',zone:'America/Chicago'},{label:'Los Angeles',zone:'America/Los_Angeles'},{label:'London',zone:'Europe/London'},{label:'Paris',zone:'Europe/Paris'},{label:'Dubai',zone:'Asia/Dubai'},{label:'Mumbai',zone:'Asia/Kolkata'},{label:'Beijing',zone:'Asia/Shanghai'},{label:'Tokyo',zone:'Asia/Tokyo'},{label:'Sydney',zone:'Australia/Sydney'}];
     const worldClocksContainer=document.getElementById('worldClocks');
     const clockElements={};
@@ -149,8 +152,12 @@
         document.getElementById('price').textContent=mirrorPriceXch?`${mirrorPriceXch.toFixed(8)} XCH ($${priceUsd.toFixed(4)})`:'--';
       }catch(e){console.error(e);}
     }
-    fetchTokenData();
-    setInterval(fetchTokenData,10*60*1000);
+
+    // Populate immediately after DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchTokenData();
+      setInterval(fetchTokenData,10*60*1000);
+    });
   </script>
 </body>
 </html>
