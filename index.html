@@ -1,92 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MIRROR Multipass Card</title>
-  <link rel="preconnect" href="https://api.spacescan.io"/>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
-    :root {
-      --frame-bg: linear-gradient(145deg, #dcdcdc, #a8a8a8, #8d8d8d, #c2c2c2);
-      --frame-border: #676a6c;
-      --accent-color: #ff9500;
-      --glass-tint: rgba(34,139,34,0.15);
-    }
-    body {
-      margin: 0; padding: 0; height: 100vh;
-      display: flex; justify-content: center; align-items: center;
-      background: #101010; font-family: 'Orbitron', sans-serif; color: #e0e0e0;
-    }
-    #card {
-      width: 480px; height: 650px; background: var(--frame-bg);
-      border: 2px solid var(--frame-border); border-radius: 16px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.8); position: relative;
-      display: flex; flex-direction: column; overflow: hidden;
-    }
-    .accent { width: 30px; height: 30px; background: var(--accent-color); border-radius: 6px; position: absolute; }
-    .accent.tl { top: 10px; left: 10px; } .accent.br { bottom: 10px; right: 10px; }
-
-    #header {
-      height: 90px; border-bottom: 1px solid rgba(0,0,0,0.3);
-      display: flex; align-items: center; padding: 10px 20px; gap: 14px;
-    }
-    #header h1 { font-size: 1.4rem; margin: 0; color: #222; }
-    #subline { font-size: 0.7rem; color: #333; letter-spacing: 1px; }
-
-    #viewport {
-      flex: 1; margin: 20px; border: 3px solid #444; border-radius: 12px;
-      background: var(--glass-tint); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-      position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 16px; gap: 10px;
-    }
-
-    .row { display: flex; gap: 10px; align-items: stretch; }
-    .col { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-
-    #stats, #times {
-      background: rgba(0,0,0,0.25); border: 1px solid #333; border-radius: 10px; padding: 10px;
-    }
-
-    .stat {
-      font-size: 0.95rem; color: #e7fff7; text-shadow: 0 0 4px rgba(0,255,255,0.8);
-      display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed rgba(255,255,255,0.08);
-    }
-    .stat:last-child { border-bottom: none; }
-    .label { color: rgba(200,255,215,0.8); }
-    .value { color: #bcfff1; }
-
-    #times .line { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 3px 0; }
-    #worldClocks {
-      display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 6px; margin-top: 6px;
-    }
-    .clockBox {
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      padding: 6px; background: rgba(0,0,0,0.25); border: 1px solid #2b2b2b; border-radius: 6px;
-      min-height: 44px; text-align:center;
-    }
-    .clockLabel { font-size: 0.65rem; color:#8af8e5; }
-    .clockTime { font-size: 0.85rem; color:#dffdf7; }
-
-    #footer {
-      height: 70px; background: linear-gradient(90deg,#4f5152,#656667,#4f5152);
-      display:flex; flex-direction:column; justify-content:center; align-items:center; border-top:1px solid rgba(0,0,0,0.3);
-    }
-    #footer h2 { margin: 0; font-size: 1.0rem; color: #c0c8d0; }
-    #footer p { margin: 2px 0 0; font-size: 0.68rem; color: #9aa2ac; text-transform: uppercase; letter-spacing: 2px; }
-    #lastUpdated { font-size: 0.6rem; color: #9adccd; margin-top: 4px; }
-    #aeBadge {
-      width: 50px; height: 50px; border-radius: 50%;
-      background: linear-gradient(135deg,#e1e4e6,#c7c9cb,#f9f9fa);
-      color:#333; display:flex; align-items:center; justify-content:center;
-      font-size:1.2rem; font-weight:bold; border:2px solid #a2a4a8;
-      box-shadow: 0 0 0 4px rgba(193,137,69,0.6), inset 0 2px 3px rgba(255,255,255,0.8), inset 0 -2px 3px rgba(0,0,0,0.3);
-    }
-
-    /* small screens */
-    @media (max-width: 520px) {
-      #card { width: 94vw; height: 92vh; }
-      #worldClocks { grid-template-columns: repeat(2, minmax(0,1fr)); }
-    }
+    :root{--frame-bg:linear-gradient(145deg,#dcdcdc,#a8a8a8,#8d8d8d,#c2c2c2);--frame-border:#676a6c;--accent-color:#ff9500;--glass-tint:rgba(34,139,34,.15)}
+    body{margin:0;height:100vh;display:flex;justify-content:center;align-items:center;background:#101010;font-family:'Orbitron',sans-serif;color:#e0e0e0}
+    #card{width:480px;height:650px;background:var(--frame-bg);border:2px solid var(--frame-border);border-radius:16px;box-shadow:0 10px 20px rgba(0,0,0,.8);position:relative;display:flex;flex-direction:column;overflow:hidden}
+    .accent{width:30px;height:30px;background:var(--accent-color);border-radius:6px;position:absolute}
+    .accent.tl{top:10px;left:10px}.accent.br{bottom:10px;right:10px}
+    #header{height:90px;border-bottom:1px solid rgba(0,0,0,.3);display:flex;align-items:center;padding:10px 20px}
+    #header h1{font-size:1.6rem;margin:0;color:#222;margin-right:auto}
+    #header img.mirror-logo{width:60px;height:60px;margin-right:16px}
+    #aeBadge{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#e1e4e6,#c7c9cb,#f9f9fa);color:#333;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:bold;border:2px solid #a2a4a8;box-shadow:0 0 0 4px rgba(193,137,69,.6),inset 0 2px 3px rgba(255,255,255,.8),inset 0 -2px 3px rgba(0,0,0,.3)}
+    #viewport{flex:1;margin:20px;border:3px solid #444;border-radius:12px;background:var(--glass-tint);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);position:relative;display:flex;flex-direction:column;justify-content:space-between;padding:16px}
+    #stats{display:flex;flex-direction:column;gap:16px}
+    #stats div{font-size:1rem;color:#e7fff7;text-shadow:0 0 4px rgba(0,255,255,.8);display:flex;justify-content:space-between}
+    #stats div span:nth-child(1){color:rgba(200,255,215,.8)}
+    #footer{height:70px;background:linear-gradient(90deg,#4f5152,#656667,#4f5152);display:flex;flex-direction:column;justify-content:center;align-items:center;border-top:1px solid rgba(0,0,0,.3)}
+    #footer h2{margin:0;font-size:1.2rem;color:#c0c8d0}
+    #footer p{margin:2px 0 0;font-size:.7rem;color:#9aa2ac;text-transform:uppercase;letter-spacing:2px}
   </style>
 </head>
 <body>
@@ -95,228 +30,127 @@
     <div class="accent br"></div>
 
     <div id="header">
-      <div id="aeBadge">AE</div>
-      <div>
-        <h1>MIRROR Multipass Card</h1>
-        <div id="subline">Launch: <span id="launchDate">--</span> • Days since: <span id="days">--</span></div>
-      </div>
+      <h1>MIRROR</h1>
+      <img src="https://icons.dexie.space/0957ed359f099d5846c2c74c42e7c2eb9608b58c32e320e144840e3efab0b747.webp" class="mirror-logo" alt="Mirror logo" />
+      <div id="aeBadge">Æ</div>
     </div>
 
     <div id="viewport">
-      <div class="row">
-        <div id="stats" class="col">
-          <div class="stat"><span class="label">Holders</span><span id="holders" class="value">--</span></div>
-          <div class="stat"><span class="label">Total supply</span><span id="total" class="value">--</span></div>
-          <div class="stat"><span class="label">Circulating</span><span id="circ" class="value">--</span></div>
-          <div class="stat"><span class="label">Burned</span><span id="burned" class="value">--</span></div>
-          <div class="stat"><span class="label">Price</span><span id="price" class="value">--</span></div>
-        </div>
-
-        <div id="times" class="col">
-          <div class="line"><span class="label">Today</span><span id="currentDate" class="value">--</span></div>
-          <div id="worldClocks"></div>
-        </div>
+      <div id="stats">
+        <div><span>Launch (UTC)</span><span id="launchDate">--</span></div>
+        <div><span>Days Deployed</span><span id="days">--</span></div>
+        <div><span>Holders</span><span id="holders">--</span></div>
+        <div><span>Total Supply</span><span id="total">--</span></div>
+        <div><span>Circulating</span><span id="circ">--</span></div>
+        <div><span>Burned</span><span id="burned">--</span></div>
+        <div><span>Price (XCH)</span><span id="price">--</span></div>
+        <div><span>Today</span><span id="currentDate">--</span></div>
       </div>
-
-      <div id="lastUpdated">Last updated: --</div>
+      <div id="worldClocks" style="margin-top:12px;font-size:.7rem;color:#b8f5e8;display:flex;flex-wrap:wrap;gap:6px;"></div>
     </div>
 
     <div id="footer">
-      <h2>MIRROR</h2>
-      <p>Dynamic on-chain dashboard • text/html</p>
+      <h2>Multipass</h2>
+      <p></p>
     </div>
   </div>
 
   <script>
-    // ====== Config ======
     const TOKEN_ID = '0957ed359f099d5846c2c74c42e7c2eb9608b58c32e320e144840e3efab0b747';
     const LAUNCH_DATE = '2025-03-12T11:19:31Z';
-    const POLL_MS = 120_000; // 2 minutes
-    const REQUEST_TIMEOUT_MS = 10_000;
 
-    // ====== Utilities ======
-    const $ = id => document.getElementById(id);
-    const setText = (id, v) => { const n = $(id); if (n) n.textContent = v; };
-    const fmtNum = x => Number.isFinite(x) ? x.toLocaleString() : '--';
-    const fmtMoney = (x, d = 4) => Number.isFinite(x) ? x.toFixed(d) : '--';
-    const nowISO = () => new Date().toISOString().replace('T',' ').replace('Z',' UTC');
+    const launchDateObj=new Date(LAUNCH_DATE);
+    document.getElementById('launchDate').textContent=
+      launchDateObj.toLocaleString(undefined,{year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'UTC'})+' UTC';
+    document.getElementById('days').textContent=
+      Math.floor((Date.now()-launchDateObj.getTime())/(1000*60*60*24)).toString();
 
-    function withTimeout(p, ms, controller) {
-      const t = setTimeout(() => controller.abort(), ms);
-      return p.finally(() => clearTimeout(t));
+    function updateCurrentDate(){
+      const now=new Date();
+      document.getElementById('currentDate').textContent=
+        now.toLocaleDateString(undefined,{year:'numeric',month:'numeric',day:'numeric'});
     }
+    updateCurrentDate();
 
-    async function jfetch(url, { signal } = {}) {
-      const r = await fetch(url, { signal, headers: { accept: 'application/json' } });
-      if (!r.ok) throw new Error(`${r.status} ${url}`);
-      return r.json();
-    }
-
-    async function retry(fn, { tries = 5, base = 300 } = {}) {
-      let last;
-      for (let i = 0; i < tries; i++) {
-        try { return await fn(); }
-        catch (e) {
-          last = e;
-          await new Promise(res => setTimeout(res, base * (2 ** i) + Math.random() * 100));
-        }
-      }
-      throw last;
-    }
-
-    // ====== World clocks ======
-    const timeZones = [
-      { label: 'UTC', zone: 'UTC' },
-      { label: 'New York', zone: 'America/New_York' },
-      { label: 'Chicago', zone: 'America/Chicago' },
-      { label: 'Los Angeles', zone: 'America/Los_Angeles' },
-      { label: 'London', zone: 'Europe/London' },
-      { label: 'Paris', zone: 'Europe/Paris' },
-      { label: 'Dubai', zone: 'Asia/Dubai' },
-      { label: 'Mumbai', zone: 'Asia/Kolkata' },
-      { label: 'Beijing', zone: 'Asia/Shanghai' },
-      { label: 'Tokyo', zone: 'Asia/Tokyo' },
-      { label: 'Sydney', zone: 'Australia/Sydney' }
-    ];
-    const clockNodes = {};
-
-    function renderClocks() {
-      const wrap = $('worldClocks');
-      if (!wrap) return;
-      wrap.innerHTML = '';
-      timeZones.forEach(tz => {
-        const box = document.createElement('div');
-        box.className = 'clockBox';
-        const label = document.createElement('div');
-        label.className = 'clockLabel';
-        label.textContent = tz.label;
-        const time = document.createElement('div');
-        time.className = 'clockTime';
-        time.id = `clock-${tz.label.replace(/\s+/g,'')}`;
-        time.textContent = '--';
-        box.appendChild(label);
-        box.appendChild(time);
-        wrap.appendChild(box);
-        clockNodes[tz.label] = time;
+    const timeZones=[{label:'UTC',zone:'UTC'},{label:'New York',zone:'America/New_York'},{label:'Chicago',zone:'America/Chicago'},{label:'Los Angeles',zone:'America/Los_Angeles'},{label:'London',zone:'Europe/London'},{label:'Paris',zone:'Europe/Paris'},{label:'Dubai',zone:'Asia/Dubai'},{label:'Mumbai',zone:'Asia/Kolkata'},{label:'Beijing',zone:'Asia/Shanghai'},{label:'Tokyo',zone:'Asia/Tokyo'},{label:'Sydney',zone:'Australia/Sydney'}];
+    const worldClocksContainer=document.getElementById('worldClocks');
+    const clockElements={};
+    timeZones.forEach(tz=>{
+      const el=document.createElement('div');
+      el.style.display='flex';el.style.flexDirection='column';el.style.alignItems='center';
+      el.style.padding='2px 4px';el.style.background='rgba(0,0,0,.25)';el.style.borderRadius='4px';
+      el.style.minWidth='80px';el.style.textAlign='center';
+      el.innerHTML=`<strong style="font-size:.65rem;color:#8af8e5;">${tz.label}</strong><span id="clock-${tz.label.replace(/\s+/g,'')}">--</span>`;
+      worldClocksContainer.appendChild(el);
+      clockElements[tz.label]=el.querySelector('span');
+    });
+    function updateWorldClocks(){
+      const now=new Date();
+      timeZones.forEach(tz=>{
+        clockElements[tz.label].textContent=now.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:tz.zone});
       });
     }
+    updateWorldClocks();
+    setInterval(()=>{updateCurrentDate();updateWorldClocks();},1000);
 
-    function updateWorldClocks() {
-      const now = new Date();
-      for (const tz of timeZones) {
-        const n = clockNodes[tz.label];
-        if (n) {
-          n.textContent = now.toLocaleTimeString(undefined, {
-            hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: tz.zone
-          });
+    async function safeJSON(res){try{return await res.json();}catch{return {};}}
+    async function getHoldersCount(){
+      try{
+        const r=await fetch(`https://api.spacescan.io/api/cat/info/${TOKEN_ID}`);
+        const j=await safeJSON(r);
+        const n=parseInt(j.holders ?? j?.data?.holders ?? NaN,10);
+        if(!Number.isNaN(n)&&n>0)return n;
+      }catch{}
+      const paginate=async(qs)=>{
+        let total=0,page=1,size=qs.page_size??qs.size??qs.limit??500;
+        while(true){
+          const url=new URL(`https://api.spacescan.io/api/cat/holders/${TOKEN_ID}`);
+          Object.entries({page,...qs,page_size:size}).forEach(([k,v])=>url.searchParams.set(k,String(v)));
+          const res=await fetch(url.toString());const data=await safeJSON(res);
+          const arr=data.tokens||data.holders||data.result||[];
+          total+=arr.length;if(arr.length<size)break;page+=1;if(page>2000)break;
         }
-      }
+        return total||0;
+      };
+      return (
+        await paginate({page_size:500}).catch(()=>0)||
+        await paginate({size:500}).catch(()=>0)||
+        await paginate({limit:500,offset:0}).catch(()=>0)
+      );
     }
 
-    function updateCurrentDate() {
-      setText('currentDate', new Date().toLocaleDateString(undefined, {
-        year:'numeric', month:'numeric', day:'numeric'
-      }));
+    async function fetchTokenData(){
+      try{
+        const [circRes,totalRes,priceRes,xchUsdRes]=await Promise.all([
+          fetch(`https://api.spacescan.io/api/cat/circulating-supply/${TOKEN_ID}`),
+          fetch(`https://api.spacescan.io/api/cat/total-supply/${TOKEN_ID}`),
+          fetch(`https://api.spacescan.io/api/cat/price/${TOKEN_ID}?currency=XCH`),
+          fetch(`https://api.spacescan.io/stats/price?currency=usd`)
+        ]);
+        const circData=await safeJSON(circRes);
+        const totalData=await safeJSON(totalRes);
+        const priceData=await safeJSON(priceRes);
+        const xchUsdData=await safeJSON(xchUsdRes);
+
+        const circVal=parseFloat(circData.circulating_supply ?? circData?.data?.circulating_supply ?? 0);
+        const totalVal=parseFloat(totalData.total_supply ?? totalData?.data?.total_supply ?? 0);
+        const burnedVal=(totalVal&&circVal)?(totalVal-circVal):0;
+
+        const mirrorPriceXch=parseFloat(priceData.price?.xch ?? priceData?.data?.price?.xch ?? 0);
+        const xchToUsd=parseFloat(xchUsdData.price ?? xchUsdData?.data?.price ?? 0);
+        const priceUsd=mirrorPriceXch*xchToUsd;
+
+        const holdersVal=await getHoldersCount();
+
+        document.getElementById('holders').textContent=holdersVal?holdersVal.toLocaleString():'--';
+        document.getElementById('total').textContent=totalVal?totalVal.toLocaleString():'--';
+        document.getElementById('circ').textContent=circVal?circVal.toLocaleString():'--';
+        document.getElementById('burned').textContent=burnedVal?burnedVal.toLocaleString():'--';
+        document.getElementById('price').textContent=mirrorPriceXch?`${mirrorPriceXch.toFixed(8)} XCH ($${priceUsd.toFixed(4)})`:'--';
+      }catch(e){console.error(e);}
     }
-
-    // ====== Stats: Spacescan API ======
-    async function holdersCount(signal) {
-      const url = `https://api.spacescan.io/token/holders_count/${TOKEN_ID}`;
-      const data = await retry(() => jfetch(url, { signal }));
-      return Number.isFinite(Number(data.holders_count))
-        ? Number(data.holders_count)
-        : 0;
-    }
-
-    async function fetchStats(signal) {
-      const [circ, total, priceXch, xchUsd] = await Promise.all([
-        retry(() => jfetch(`https://api.spacescan.io/token/circulating-supply/${TOKEN_ID}`, { signal })),
-        retry(() => jfetch(`https://api.spacescan.io/token/total-supply/${TOKEN_ID}`, { signal })),
-        retry(() => jfetch(`https://api.spacescan.io/token/price/${TOKEN_ID}?currency=XCH`, { signal })),
-        retry(() => jfetch(`https://api.spacescan.io/stats/price?currency=usd`, { signal })),
-      ]);
-
-      const circVal  = Number(circ?.circulating_supply ?? 0);
-      const totalVal = Number(total?.total_supply ?? 0);
-      const burned   = (Number.isFinite(totalVal) && Number.isFinite(circVal)) ? totalVal - circVal : NaN;
-      const pxXch    = Number(priceXch?.price?.xch ?? 0);
-      const pxUsd    = pxXch * Number(xchUsd?.price ?? 0);
-
-      return { circ: circVal, total: totalVal, burned, priceXch: pxXch, priceUsd: pxUsd };
-    }
-
-    async function fetchAndRender() {
-      const ac = new AbortController();
-      try {
-        await withTimeout((async () => {
-          const [holders, stats] = await Promise.all([
-            holdersCount(ac.signal),
-            fetchStats(ac.signal),
-          ]);
-
-          setText('holders', fmtNum(holders));
-          setText('total',   fmtNum(stats.total));
-          setText('circ',    fmtNum(stats.circ));
-          setText('burned',  fmtNum(stats.burned));
-
-          const priceOut = (Number.isFinite(stats.priceXch) && stats.priceXch > 0)
-            ? `${stats.priceXch.toFixed(8)} XCH ($${fmtMoney(stats.priceUsd)})`
-            : '--';
-          setText('price', priceOut);
-
-          setText('lastUpdated', `Last updated: ${nowISO()}`);
-        })(), REQUEST_TIMEOUT_MS, ac);
-      } catch (e) {
-        console.error('Update failed:', e);
-        setText('lastUpdated', `Last attempted: ${nowISO()} (error)`);
-      }
-    }
-
-    // ====== Launch + Days since ======
-    function renderLaunch() {
-      const launch = new Date(LAUNCH_DATE);
-      setText('launchDate', launch.toLocaleString(undefined, {
-        year:'numeric', month:'numeric', day:'numeric',
-        hour:'2-digit', minute:'2-digit', hour12:true, timeZone:'UTC'
-      }) + ' UTC');
-      setText('days', String(Math.floor((Date.now() - launch.getTime()) / 86400000)));
-    }
-
-    // ====== Polling control ======
-    let pollTimer = null;
-    function startPolling() {
-      if (!pollTimer) pollTimer = setInterval(fetchAndRender, POLL_MS);
-    }
-    function stopPolling() {
-      if (pollTimer) {
-        clearInterval(pollTimer);
-        pollTimer = null;
-      }
-    }
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) stopPolling();
-      else {
-        fetchAndRender();
-        startPolling();
-      }
-    });
-
-    // ====== Init ======
-    (function init() {
-      renderLaunch();
-      renderClocks();
-      updateCurrentDate();
-      updateWorldClocks();
-
-      setInterval(() => {
-        updateCurrentDate();
-        updateWorldClocks();
-      }, 1000);
-
-      fetchAndRender().then(startPolling);
-    })();
+    fetchTokenData();
+    setInterval(fetchTokenData,10*60*1000);
   </script>
 </body>
 </html>
-
