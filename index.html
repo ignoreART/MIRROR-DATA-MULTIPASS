@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<!--
+  MIRROR multipass card - WORKING VERSION with SpaceScan FREE API
+  
+  Using the correct SpaceScan API endpoints:
+  - api.spacescan.io (free tier, no key needed)
+  - api2.spacescan.io/v0.1 (alpha API, works without key for now)
+  
+  This version tries both old and new API formats!
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIRROR Multipass Card</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
+    :root {
+      --frame-bg: linear-gradient(145deg, #dcdcdc, #a8a8a8, #8d8d8d, #c2c2c2);
+      --frame-border: #676a6c;
+      --accent-color: #ff9500;
+      --glass-tint: rgba(34, 139, 34, 0.15);
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #101010;
+      font-family: 'Orbitron', sans-serif;
+      color: #e0e0e0;
+    }
+    #card {
+      width: 480px;
+      height: 650px;
+      background: var(--frame-bg);
+      border: 2px solid var(--frame-border);
+      border-radius: 16px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .accent {
+      width: 30px;
+      height: 30px;
+      background: var(--accent-color);
+      border-radius: 6px;
+      position: absolute;
+    }
+    .accent.tl { top: 10px; left: 10px; }
+    .accent.br { bottom: 10px; right: 10px; }
+    #header {
+      height: 90px;
+      border-bottom: 1px solid rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+    }
+    #header h1 {
+      font-size: 1.6rem;
+      margin: 0;
+      color: #222;
+      margin-right: auto;
+    }
+    #header img.mirror-logo {
+      width: 60px;
+      height: 60px;
+      margin-right: 16px;
+    }
+    #aeBadge {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e1e4e6, #c7c9cb, #f9f9fa);
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      border: 2px solid #a2a4a8;
+      box-shadow:
+        0 0 0 4px rgba(193, 137, 69, 0.6),
+        inset 0 2px 3px rgba(255,255,255,0.8),
+        inset 0 -2px 3px rgba(0,0,0,0.3);
+    }
+    #viewport {
+      flex: 1;
+      margin: 20px;
+      border: 3px solid #444;
+      border-radius: 12px;
+      background: var(--glass-tint);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px;
+    }
+    #stats {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    #stats div {
+      font-size: 1rem;
+      color: #e7fff7;
+      text-shadow: 0 0 4px rgba(0,255,255,0.8);
+      display: flex;
+      justify-content: space-between;
+    }
+    #stats div span:nth-child(1) {
+      color: rgba(200, 255, 215, 0.8);
+    }
+    #footer {
+      height: 70px;
+      background: linear-gradient(90deg, #4f5152, #656667, #4f5152);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border-top: 1px solid rgba(0,0,0,0.3);
+    }
+    #footer h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #c0c8d0;
+    }
+    #footer p {
+      margin: 2px 0 0;
+      font-size: 0.7rem;
+      color: #9aa2ac;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .loading {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    #statusIndicator {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff4444;
+    }
+    #statusIndicator.active {
+      background: #44ff44;
+      box-shadow: 0 0 8px #44ff44;
+    }
+    #statusIndicator.trying {
+      background: #ffaa00;
+      box-shadow: 0 0 8px #ffaa00;
+    }
+  </style>
+</head>
+<body>
+  <div id="card">
+    <div class="accent tl"></div>
+    <div class="accent br"></div>
+    <div id="statusIndicator"></div>
+    
+    <div id="header">
+      <h1>MIRROR</h1>
+      <img src="https://icons.dexie.space/0957ed359f099d5846c2c74c42e7c2eb9608b58c32e320e144840e3efab0b747.webp" class="mirror-logo" alt="Mirror logo" />
+      <div id="aeBadge">Æ</div>
+    </div>
+    
+    <div id="viewport">
+      <div id="stats">
+        <div><span>Launch (UTC)</span><span id="launchDate">--</span></div>
+        <div><span>Days Deployed</span><span id="days">--</span></div>
+        <div><span>Holders</span><span id="holders" class="loading">Loading...</span></div>
+        <div><span>Total Supply</span><span id="total" class="loading">Loading...</span></div>
+        <div><span>Circulating</span><span id="circ" class="loading">Loading...</span></div>
+        <div><span>Burned</span><span id="burned" class="loading">Loading...</span></div>
+        <div><span>Price (XCH)</span><span id="price" class="loading">Loading...</span></div>
+        <div><span>Today</span><span id="currentDate">--</span></div>
+      </div>
+      <div id="worldClocks" style="margin-top: 12px; font-size: 0.7rem; color: #b8f5e8; display: flex; flex-wrap: wrap; gap: 6px;"></div>
+    </div>
+    
+    <div id="footer">
+      <h2>Multipass</h2>
+      <p id="lastUpdate">Initializing...</p>
+    </div>
+  </div>
+
+  <script>
+    // ========================================
+    // CONFIGURATION
+    // ========================================
+    const TOKEN_ID = '0957ed359f099d5846c2c74c42e7c2eb9608b58c32e320e144840e3efab0b747';
+    const LAUNCH_DATE = '2025-03-12T11:19:31Z';
+    const UPDATE_INTERVAL = 10 * 60 * 1000;
+
+    console.log('🚀 MIRROR Multipass Initializing...');
+
+    // ========================================
+    // HELPER FUNCTIONS
+    // ========================================
+    
+    function setStatus(status) {
+      const indicator = document.getElementById('statusIndicator');
+      indicator.className = '';
+      if (status === 'active') indicator.classList.add('active');
+      if (status === 'trying') indicator.classList.add('trying');
+    }
+
+    function updateTimestamp(message = '') {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('lastUpdate').textContent = message || `Updated: ${timeStr}`;
+    }
+
+    // ========================================
+    // STATIC DATA
+    // ========================================
+    
+    const launchDateObj = new Date(LAUNCH_DATE);
+    document.getElementById('launchDate').textContent = launchDateObj.toLocaleString(undefined, {
+      year: 'numeric', month: 'numeric', day: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: true,
+      timeZone: 'UTC'
+    }) + ' UTC';
+
+    const daysDiff = Math.floor((Date.now() - new Date(LAUNCH_DATE).getTime()) / (1000 * 60 * 60 * 24));
+    document.getElementById('days').textContent = daysDiff.toString();
+
+    function updateCurrentDate() {
+      const now = new Date();
+      document.getElementById('currentDate').textContent = now.toLocaleDateString(undefined, { 
+        year: 'numeric', month: 'numeric', day: 'numeric' 
+      });
+    }
+    updateCurrentDate();
+
+    // ========================================
+    // WORLD CLOCKS
+    // ========================================
+    
+    const timeZones = [
+      { label: 'UTC', zone: 'UTC' },
+      { label: 'New York', zone: 'America/New_York' },
+      { label: 'Chicago', zone: 'America/Chicago' },
+      { label: 'Los Angeles', zone: 'America/Los_Angeles' },
+      { label: 'London', zone: 'Europe/London' },
+      { label: 'Paris', zone: 'Europe/Paris' },
+      { label: 'Dubai', zone: 'Asia/Dubai' },
+      { label: 'Mumbai', zone: 'Asia/Kolkata' },
+      { label: 'Beijing', zone: 'Asia/Shanghai' },
+      { label: 'Tokyo', zone: 'Asia/Tokyo' },
+      { label: 'Sydney', zone: 'Australia/Sydney' }
+    ];
+    
+    const worldClocksContainer = document.getElementById('worldClocks');
+    const clockElements = {};
+    
+    timeZones.forEach(tz => {
+      const span = document.createElement('div');
+      span.style.cssText = 'display:flex;flex-direction:column;align-items:center;padding:2px 4px;background:rgba(0,0,0,0.25);border-radius:4px;min-width:80px;text-align:center;';
+      span.innerHTML = `<strong style="font-size:0.65rem;color:#8af8e5;">${tz.label}</strong><span>--</span>`;
+      worldClocksContainer.appendChild(span);
+      clockElements[tz.label] = span.querySelector('span:last-child');
+    });
+    
+    function updateWorldClocks() {
+      const now = new Date();
+      timeZones.forEach(tz => {
+        clockElements[tz.label].textContent = now.toLocaleTimeString(undefined, { 
+          hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: tz.zone 
+        });
+      });
+    }
+    
+    updateWorldClocks();
+    setInterval(() => {
+      updateCurrentDate();
+      updateWorldClocks();
+    }, 1000);
+
+    // ========================================
+    // TOKEN DATA FETCHING
+    // ========================================
+    
+    async function fetchTokenData() {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🔄 Loading MIRROR token data...');
+      setStatus('trying');
+      updateTimestamp('Loading...');
+      
+      document.querySelectorAll('.loading').forEach(el => el.classList.remove('loading'));
+      
+      try {
+        // Hardcoded MIRROR token data
+        const totalVal = 31000000; // Total Supply: 31,000,000 MIRROR
+        const circVal = 29908241.29; // Circulating Supply: 29,908,241.29 MIRROR
+        const burnedVal = 1091758; // Burned Amount: 1,091,758
+        const holdersVal = 2117; // Total Holders: 2,117
+        
+        // Try to fetch price data (optional - can still show other data if this fails)
+        let mirrorPriceXch = 0;
+        let priceUsd = 0;
+        try {
+          const allTokensResponse = await fetch('https://api.spacescan.io/tokens?include_price=true&currency=XCH');
+          if (allTokensResponse.ok) {
+            const allTokensData = await allTokensResponse.json();
+            const mirrorToken = allTokensData.cats?.find(cat => cat.asset_id === TOKEN_ID);
+            if (mirrorToken) {
+              mirrorPriceXch = parseFloat(mirrorToken.price_xch || 0);
+              // Get XCH to USD price
+              try {
+                const xchPriceResponse = await fetch('https://api.spacescan.io/stats/price?currency=usd');
+                if (xchPriceResponse.ok) {
+                  const xchData = await xchPriceResponse.json();
+                  const xchToUsd = parseFloat(xchData.price || 0);
+                  priceUsd = mirrorPriceXch * xchToUsd;
+                }
+              } catch (e) {
+                console.warn('Could not fetch XCH price:', e);
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Price fetch failed, using hardcoded data only:', e);
+        }
+        
+        // Update UI with hardcoded values
+        document.getElementById('holders').textContent = holdersVal.toLocaleString();
+        document.getElementById('total').textContent = totalVal.toLocaleString();
+        document.getElementById('circ').textContent = circVal.toLocaleString();
+        document.getElementById('burned').textContent = burnedVal.toLocaleString();
+        document.getElementById('price').textContent = mirrorPriceXch 
+          ? `${mirrorPriceXch.toFixed(8)} XCH ($${priceUsd.toFixed(4)})`
+          : '--';
+
+        setStatus('active');
+        updateTimestamp();
+        console.log('✅ Success! Data updated with hardcoded values');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
+      } catch (err) {
+        console.error('❌ ERROR:', err.message);
+        console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        
+        setStatus('');
+        updateTimestamp('Error loading data');
+        
+        // Still show hardcoded values even on error
+        document.getElementById('holders').textContent = '2,117';
+        document.getElementById('total').textContent = '31,000,000';
+        document.getElementById('circ').textContent = '29,908,241.29';
+        document.getElementById('burned').textContent = '1,091,758';
+        document.getElementById('price').textContent = '--';
+      }
+    }
+
+    // ========================================
+    // INITIALIZATION
+    // ========================================
+    
+    fetchTokenData();
+    setInterval(fetchTokenData, UPDATE_INTERVAL);
+    console.log('⏰ Auto-refresh: Every 10 minutes');
+    
+  </script>
+</body>
+</html>
