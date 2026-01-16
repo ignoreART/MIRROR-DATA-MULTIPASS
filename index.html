@@ -1,11 +1,55 @@
 <!DOCTYPE html>
 <!--
-  MIRROR multipass card - Using TAIL Database + Dexie.space APIs
-  
-  This version uses alternative data sources that may have better CAT coverage:
-  1. taildatabase.com - CAT token registry
-  2. dexie.space - Chia DEX with token data
-  3. Fallback to estimated/placeholder values
+  MIRROR Multipass Card - Enhanced API Integration
+
+  ===========================================
+  API SOURCES & FALLBACK CHAIN:
+  ===========================================
+
+  XCH PRICE (USD):
+  1. CoinGecko API (Primary) - https://api.coingecko.com/api/v3/simple/price?ids=chia
+     - Most reliable and widely used crypto price API
+     - Free tier available, good rate limits
+     - 5-minute cache to avoid rate limiting
+
+  2. SpaceScan API (Secondary) - https://api.spacescan.io/stats/price?currency=usd
+     - Fallback if CoinGecko fails
+     - Chia-specific API
+
+  3. Cached Price (Tertiary)
+     - Uses last successful price if both APIs fail
+     - TTL: 5 minutes
+
+  TOKEN DATA:
+  1. Dexie.space API - https://api.dexie.space/v1/cats
+     - Primary source for MIRROR token data
+     - Includes holders, supply, and price in XCH
+     - Enhanced with retry logic (3 attempts with exponential backoff)
+
+  2. Manual/Hardcoded Data
+     - Fallback if APIs fail
+     - Can be toggled via MANUAL_DATA.enabled flag
+
+  ===========================================
+  FEATURES:
+  ===========================================
+  - Multi-source API fetching with automatic fallbacks
+  - Response caching to minimize API calls
+  - Retry logic with exponential backoff
+  - Real-time status indicators showing API source
+  - Comprehensive error handling
+  - World clocks for multiple time zones
+  - Auto-refresh every 10 minutes
+
+  ===========================================
+  STATUS INDICATORS:
+  ===========================================
+  - Green: Active API (CoinGecko/SpaceScan/Dexie)
+  - Cyan: Using cached data
+  - Blue: Manual/hardcoded data
+  - Orange: Loading/trying
+  - Red: Error
+
 -->
 <html lang="en">
 <head>
@@ -152,6 +196,7 @@
       height: 8px;
       border-radius: 50%;
       background: #ff4444;
+      transition: all 0.3s ease;
     }
     #statusIndicator.active {
       background: #44ff44;
@@ -165,6 +210,23 @@
       background: #8888ff;
       box-shadow: 0 0 8px #8888ff;
     }
+    #statusIndicator.cached {
+      background: #00ccff;
+      box-shadow: 0 0 8px #00ccff;
+    }
+    #statusIndicator.error {
+      background: #ff4444;
+      box-shadow: 0 0 8px #ff4444;
+    }
+    #apiStatusText {
+      position: absolute;
+      top: 15px;
+      right: 5px;
+      font-size: 0.5rem;
+      color: #b0b0b0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
   </style>
 </head>
 <body>
@@ -172,7 +234,8 @@
     <div class="accent tl"></div>
     <div class="accent br"></div>
     <div id="statusIndicator"></div>
-    
+    <div id="apiStatusText"></div>
+
     <div id="header">
       <h1>MIRROR</h1>
       <img src="https://icons.dexie.space/0957ed359f099d5846c2c74c42e7c2eb9608b58c32e320e144840e3efab0b747.webp" class="mirror-logo" alt="Mirror logo" />
@@ -223,10 +286,12 @@
     // HELPER FUNCTIONS
     // ========================================
     
-    function setStatus(status) {
+    function setStatus(status, text = '') {
       const indicator = document.getElementById('statusIndicator');
+      const statusText = document.getElementById('apiStatusText');
       indicator.className = '';
       if (status) indicator.classList.add(status);
+      statusText.textContent = text;
     }
 
     function updateTimestamp(message = '') {
@@ -323,24 +388,34 @@
         let xchToUsd = 0;
         
         try {
-          xchToUsd = await getXchPrice();
-          // Try to get MIRROR price from Dexie or other APIs
+          const xchPriceData = await getXchPrice();
+          xchToUsd = xchPriceData.price;
+
+          // Set status based on price source
+          if (xchPriceData.source === 'coingecko') {
+            setStatus('active', 'CoinGecko');
+          } else if (xchPriceData.source === 'spacescan') {
+            setStatus('active', 'SpaceScan');
+          } else if (xchPriceData.source === 'cached' || xchPriceData.source === 'stale-cache') {
+            setStatus('cached', 'Cached');
+          }
+
+          // Try to get MIRROR price from Dexie with retry
           if (!priceXch) {
             const dexieUrl = `https://api.dexie.space/v1/cats`;
-            const dexieResponse = await fetch(dexieUrl);
-            if (dexieResponse.ok) {
-              const dexieData = await dexieResponse.json();
+            const dexieData = await fetchWithRetry(dexieUrl, 2);
+            if (dexieData) {
               const mirrorToken = dexieData.find(cat => cat.id === TOKEN_ID);
               if (mirrorToken && mirrorToken.price) {
                 priceXch = parseFloat(mirrorToken.price || 0);
-                console.log('✅ Found price on Dexie:', priceXch);
+                console.log('✅ Found MIRROR price on Dexie:', priceXch);
               }
             }
           }
         } catch (e) {
-          console.warn('Price fetch failed, using manual data only');
+          console.warn('⚠️ Price fetch failed, using manual data only:', e.message);
         }
-        
+
         const burnedAmount = MANUAL_DATA.totalSupply - MANUAL_DATA.circulatingSupply;
         const priceUsd = priceXch * xchToUsd;
         
@@ -360,66 +435,174 @@
       }
       
       try {
-        // Try Dexie.space API
+        // Try Dexie.space API with retry logic
         console.log('📡 Trying Dexie.space API...');
         const dexieUrl = `https://api.dexie.space/v1/cats`;
-        const dexieResponse = await fetch(dexieUrl);
-        
-        if (dexieResponse.ok) {
-          const dexieData = await dexieResponse.json();
+        const dexieData = await fetchWithRetry(dexieUrl, 3);
+
+        if (dexieData) {
           const mirrorToken = dexieData.find(cat => cat.id === TOKEN_ID);
-          
+
           if (mirrorToken) {
-            console.log('✅ Found on Dexie:', mirrorToken);
-            
-            const xchToUsd = await getXchPrice();
+            console.log('✅ Found MIRROR on Dexie:', mirrorToken);
+
+            const xchPriceData = await getXchPrice();
+            const xchToUsd = xchPriceData.price;
             const totalVal = parseFloat(mirrorToken.total_supply || 0) / 1000; // Convert mojos
             const priceXch = parseFloat(mirrorToken.price || 0);
             const priceUsd = priceXch * xchToUsd;
-            
+
+            // Set status based on price source
+            if (xchPriceData.source === 'coingecko') {
+              setStatus('active', 'CoinGecko');
+            } else if (xchPriceData.source === 'spacescan') {
+              setStatus('active', 'SpaceScan');
+            } else if (xchPriceData.source === 'cached' || xchPriceData.source === 'stale-cache') {
+              setStatus('cached', 'Cached');
+            } else {
+              setStatus('active', 'Dexie');
+            }
+
             document.getElementById('holders').textContent = mirrorToken.holders || 'N/A';
             document.getElementById('total').textContent = totalVal.toLocaleString();
             document.getElementById('circ').textContent = totalVal.toLocaleString();
             document.getElementById('burned').textContent = '0';
-            document.getElementById('price').textContent = priceXch 
+            document.getElementById('price').textContent = priceXch
               ? `${priceXch.toFixed(8)} XCH ($${priceUsd.toFixed(4)})`
               : 'Not Listed';
 
-            setStatus('active');
             updateTimestamp();
             console.log('✅ Success via Dexie!');
             console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             return;
+          } else {
+            console.warn('⚠️ MIRROR token not found in Dexie response');
           }
         }
-        
+
         // If all APIs fail
-        throw new Error('Token not found in any API');
-        
+        throw new Error('Token not found in any API or all API requests failed');
+
       } catch (err) {
         console.error('❌ API Error:', err.message);
         console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        
-        setStatus('');
-        updateTimestamp('Not indexed - see console');
-        
-        document.getElementById('holders').textContent = 'Not Indexed';
-        document.getElementById('total').textContent = 'Not Indexed';
-        document.getElementById('circ').textContent = 'Not Indexed';
-        document.getElementById('burned').textContent = 'Not Indexed';
-        document.getElementById('price').textContent = 'Not Listed';
+
+        setStatus('error', 'Error');
+        updateTimestamp('API Error - Check console');
+
+        document.getElementById('holders').textContent = 'API Error';
+        document.getElementById('total').textContent = 'API Error';
+        document.getElementById('circ').textContent = 'API Error';
+        document.getElementById('burned').textContent = 'API Error';
+        document.getElementById('price').textContent = 'API Error';
       }
     }
     
+    // ========================================
+    // PRICE FETCHING WITH COINGECKO + FALLBACKS
+    // ========================================
+
+    let priceCache = {
+      xchPrice: null,
+      timestamp: null,
+      ttl: 5 * 60 * 1000 // 5 minutes cache
+    };
+
+    /**
+     * Fetches XCH price with fallback chain:
+     * 1. CoinGecko API (Primary - most reliable)
+     * 2. SpaceScan API (Secondary fallback)
+     * 3. Cached value (Tertiary fallback)
+     */
     async function getXchPrice() {
+      // Check cache first
+      if (priceCache.xchPrice && priceCache.timestamp &&
+          (Date.now() - priceCache.timestamp < priceCache.ttl)) {
+        console.log('💾 Using cached XCH price:', priceCache.xchPrice);
+        return { price: priceCache.xchPrice, source: 'cached' };
+      }
+
+      // Try CoinGecko API (Primary)
       try {
+        console.log('🔄 Fetching XCH price from CoinGecko...');
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=chia&vs_currencies=usd', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.chia && data.chia.usd) {
+            const price = parseFloat(data.chia.usd);
+            console.log('✅ CoinGecko XCH price:', price);
+
+            // Update cache
+            priceCache.xchPrice = price;
+            priceCache.timestamp = Date.now();
+
+            return { price, source: 'coingecko' };
+          }
+        } else {
+          console.warn('⚠️ CoinGecko API returned status:', response.status);
+        }
+      } catch (e) {
+        console.warn('⚠️ CoinGecko API error:', e.message);
+      }
+
+      // Fallback to SpaceScan API (Secondary)
+      try {
+        console.log('🔄 Falling back to SpaceScan API...');
         const response = await fetch('https://api.spacescan.io/stats/price?currency=usd');
         if (response.ok) {
           const data = await response.json();
-          return parseFloat(data.price || 0);
+          if (data.price) {
+            const price = parseFloat(data.price);
+            console.log('✅ SpaceScan XCH price:', price);
+
+            // Update cache
+            priceCache.xchPrice = price;
+            priceCache.timestamp = Date.now();
+
+            return { price, source: 'spacescan' };
+          }
         }
-      } catch (e) {}
-      return 0;
+      } catch (e) {
+        console.warn('⚠️ SpaceScan API error:', e.message);
+      }
+
+      // Use cached value if available (Tertiary)
+      if (priceCache.xchPrice) {
+        console.log('⚠️ All APIs failed, using stale cache:', priceCache.xchPrice);
+        return { price: priceCache.xchPrice, source: 'stale-cache' };
+      }
+
+      console.error('❌ All XCH price sources failed, returning 0');
+      return { price: 0, source: 'none' };
+    }
+
+    /**
+     * Enhanced token data fetching with retry logic
+     */
+    async function fetchWithRetry(url, retries = 2, delay = 1000) {
+      for (let i = 0; i <= retries; i++) {
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            return await response.json();
+          }
+          console.warn(`⚠️ Attempt ${i + 1} failed for ${url}:`, response.status);
+        } catch (e) {
+          console.warn(`⚠️ Attempt ${i + 1} error for ${url}:`, e.message);
+        }
+
+        if (i < retries) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+          delay *= 2; // Exponential backoff
+        }
+      }
+      return null;
     }
 
     // ========================================
