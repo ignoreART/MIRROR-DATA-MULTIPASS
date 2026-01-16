@@ -270,13 +270,13 @@
     const LAUNCH_DATE = '2025-03-12T11:19:31Z';
     const UPDATE_INTERVAL = 10 * 60 * 1000;
     
-    // MANUAL VALUES - Updated with hardcoded MIRROR token data
+    // MANUAL VALUES - Fallback data if APIs fail
     const MANUAL_DATA = {
-      enabled: true,  // Enabled to use hardcoded values
-      holders: 2117,  // Total Holders: 2,117
-      totalSupply: 31000000,  // Total Supply: 31,000,000 MIRROR
-      circulatingSupply: 29908241.29,  // Circulating Supply: 29,908,241.29 MIRROR
-      priceXch: 0  // Will try to fetch from API, or leave as 0 if not available
+      enabled: false,  // Disabled to use live API data (set to true for hardcoded fallback)
+      holders: 2117,  // Fallback: Total Holders
+      totalSupply: 31000000,  // Fallback: Total Supply
+      circulatingSupply: 29908241.29,  // Fallback: Circulating Supply
+      priceXch: 0  // Fallback: Price in XCH
     };
 
     console.log('🚀 MIRROR Multipass v3.0');
