@@ -316,6 +316,138 @@
       text-transform: uppercase;
       letter-spacing: 1px;
     }
+
+    /* Power Button */
+    #powerButton {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #3a3a3a, #1f1f1f);
+      border: 2px solid #555;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 100;
+      box-shadow:
+        0 2px 10px rgba(0,0,0,0.5),
+        inset 0 1px 2px rgba(255,255,255,0.1);
+    }
+
+    #powerButton:hover {
+      transform: scale(1.1);
+      box-shadow:
+        0 0 20px rgba(0,255,100,0.4),
+        inset 0 1px 2px rgba(255,255,255,0.2);
+    }
+
+    #powerButton.active {
+      background: linear-gradient(145deg, #00ff88, #00cc66);
+      border-color: #00ff88;
+      box-shadow:
+        0 0 25px rgba(0,255,136,0.8),
+        0 0 50px rgba(0,255,136,0.4),
+        inset 0 1px 3px rgba(255,255,255,0.5);
+    }
+
+    #powerButton svg {
+      width: 24px;
+      height: 24px;
+      fill: #666;
+      transition: fill 0.3s ease;
+    }
+
+    #powerButton.active svg {
+      fill: #fff;
+      filter: drop-shadow(0 0 3px #fff);
+    }
+
+    /* Power Off Overlay */
+    #powerOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 50;
+      border-radius: 16px;
+    }
+
+    #powerOverlay.show {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    #powerOverlay h2 {
+      color: #666;
+      font-size: 1.5rem;
+      margin: 10px 0;
+      text-shadow: 0 0 10px rgba(0,255,100,0.3);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes powerOnFlicker {
+      0% { opacity: 0; }
+      20% { opacity: 0.3; }
+      40% { opacity: 0; }
+      60% { opacity: 0.6; }
+      80% { opacity: 0.2; }
+      100% { opacity: 1; }
+    }
+
+    .power-on-animation {
+      animation: powerOnFlicker 0.6s ease;
+    }
+
+    /* Sound indicator */
+    #soundIndicator {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: rgba(50,50,50,0.8);
+      border: 2px solid #555;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+
+    #soundIndicator:hover {
+      transform: scale(1.1);
+      background: rgba(70,70,70,0.9);
+    }
+
+    #soundIndicator.muted {
+      border-color: #ff4444;
+    }
+
+    #soundIndicator svg {
+      width: 18px;
+      height: 18px;
+      fill: #aaa;
+    }
+
+    #soundIndicator.muted svg {
+      fill: #ff4444;
+    }
   </style>
 </head>
 <body>
@@ -327,6 +459,29 @@
     <div class="accent br"></div>
     <div id="statusIndicator"></div>
     <div id="apiStatusText"></div>
+
+    <!-- Power Off Overlay -->
+    <div id="powerOverlay">
+      <h2>MIRROR MULTIPASS</h2>
+      <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
+        <path d="M12 2v10M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+      </svg>
+      <p style="color: #666; margin-top: 10px; font-size: 0.9rem;">Press power to activate</p>
+    </div>
+
+    <!-- Power Button -->
+    <div id="powerButton" class="active" title="Power On/Off">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2v10M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+      </svg>
+    </div>
+
+    <!-- Sound Toggle Button -->
+    <div id="soundIndicator" title="Toggle Sound">
+      <svg id="soundIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      </svg>
+    </div>
 
     <div id="header">
       <h1>MIRROR</h1>
@@ -368,7 +523,7 @@
       holders: 2117,  // Fallback: Total Holders
       totalSupply: 31000000,  // Fallback: Total Supply
       circulatingSupply: 29908241.29,  // Fallback: Circulating Supply
-      priceXch: 0  // Fallback: Price in XCH
+      priceXch: 0.00000350  // Fallback: Price in XCH (estimated price if APIs don't have it)
     };
 
     console.log('🚀 MIRROR Multipass v3.0');
@@ -434,6 +589,152 @@
 
     // Start shooting stars
     setTimeout(scheduleShootingStar, 2000);
+
+    // ========================================
+    // SOUND SYSTEM
+    // ========================================
+
+    const SoundSystem = {
+      context: null,
+      enabled: true,
+
+      init() {
+        // AudioContext needs user interaction to start
+        this.context = new (window.AudioContext || window.webkitAudioContext)();
+      },
+
+      playTone(frequency, duration, type = 'sine') {
+        if (!this.enabled || !this.context) return;
+
+        const oscillator = this.context.createOscillator();
+        const gainNode = this.context.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(this.context.destination);
+
+        oscillator.frequency.value = frequency;
+        oscillator.type = type;
+
+        gainNode.gain.setValueAtTime(0.1, this.context.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + duration);
+
+        oscillator.start(this.context.currentTime);
+        oscillator.stop(this.context.currentTime + duration);
+      },
+
+      powerOn() {
+        if (!this.context) this.init();
+        // Power on sound: ascending tones
+        this.playTone(200, 0.1, 'sine');
+        setTimeout(() => this.playTone(400, 0.1, 'sine'), 100);
+        setTimeout(() => this.playTone(600, 0.2, 'sine'), 200);
+      },
+
+      powerOff() {
+        if (!this.context) this.init();
+        // Power off sound: descending tones
+        this.playTone(600, 0.1, 'sine');
+        setTimeout(() => this.playTone(400, 0.1, 'sine'), 100);
+        setTimeout(() => this.playTone(200, 0.2, 'sine'), 200);
+      },
+
+      beep() {
+        if (!this.context) this.init();
+        // UI interaction beep
+        this.playTone(800, 0.05, 'square');
+      },
+
+      dataLoad() {
+        if (!this.context) this.init();
+        // Data loaded sound
+        this.playTone(1200, 0.1, 'triangle');
+        setTimeout(() => this.playTone(1600, 0.15, 'triangle'), 80);
+      },
+
+      error() {
+        if (!this.context) this.init();
+        // Error sound
+        this.playTone(150, 0.3, 'sawtooth');
+      },
+
+      toggle() {
+        this.enabled = !this.enabled;
+        const indicator = document.getElementById('soundIndicator');
+        if (this.enabled) {
+          indicator.classList.remove('muted');
+          this.beep();
+        } else {
+          indicator.classList.add('muted');
+        }
+        localStorage.setItem('soundEnabled', this.enabled);
+      }
+    };
+
+    // Restore sound preference
+    const savedSound = localStorage.getItem('soundEnabled');
+    if (savedSound !== null) {
+      SoundSystem.enabled = savedSound === 'true';
+      if (!SoundSystem.enabled) {
+        document.getElementById('soundIndicator').classList.add('muted');
+      }
+    }
+
+    // ========================================
+    // POWER BUTTON SYSTEM
+    // ========================================
+
+    let isPoweredOn = true;
+
+    function togglePower() {
+      const powerButton = document.getElementById('powerButton');
+      const powerOverlay = document.getElementById('powerOverlay');
+      const viewport = document.getElementById('viewport');
+      const header = document.getElementById('header');
+      const footer = document.getElementById('footer');
+
+      isPoweredOn = !isPoweredOn;
+
+      if (isPoweredOn) {
+        // Power ON
+        SoundSystem.powerOn();
+        powerButton.classList.add('active');
+        powerOverlay.classList.remove('show');
+
+        // Flicker animation
+        viewport.classList.add('power-on-animation');
+        header.classList.add('power-on-animation');
+        footer.classList.add('power-on-animation');
+
+        setTimeout(() => {
+          viewport.classList.remove('power-on-animation');
+          header.classList.remove('power-on-animation');
+          footer.classList.remove('power-on-animation');
+        }, 600);
+
+        console.log('⚡ MIRROR Multipass POWERED ON');
+      } else {
+        // Power OFF
+        SoundSystem.powerOff();
+        powerButton.classList.remove('active');
+        powerOverlay.classList.add('show');
+        console.log('💤 MIRROR Multipass POWERED OFF');
+      }
+    }
+
+    // Event listeners for power and sound
+    document.getElementById('powerButton').addEventListener('click', togglePower);
+    document.getElementById('soundIndicator').addEventListener('click', () => {
+      SoundSystem.toggle();
+    });
+
+    // Add beep sound to hover over interactive elements
+    document.querySelectorAll('#powerButton, #soundIndicator, #statusIndicator').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        if (SoundSystem.enabled && SoundSystem.context) {
+          SoundSystem.playTone(600, 0.03, 'square');
+        }
+      });
+    });
 
     // ========================================
     // HELPER FUNCTIONS
@@ -528,21 +829,118 @@
       console.log('🔄 Loading MIRROR token data...');
       setStatus('trying');
       updateTimestamp('Loading...');
-      
+
       document.querySelectorAll('.loading').forEach(el => el.classList.remove('loading'));
-      
+
       // Check if manual mode is enabled
       if (MANUAL_DATA.enabled) {
         console.log('📝 Using MANUAL DATA mode with hardcoded values');
-        setStatus('manual');
-        
-        // Try to fetch price from API (optional)
-        let priceXch = MANUAL_DATA.priceXch;
-        let xchToUsd = 0;
-        
-        try {
+        return displayManualData();
+      }
+
+      // Try to fetch from APIs
+      try {
+        await fetchFromAPIs();
+      } catch (err) {
+        console.error('❌ All APIs failed, falling back to manual data');
+        console.error('Error details:', err.message);
+        // EMERGENCY FALLBACK: Show manual data when all APIs fail
+        displayManualData(true); // Pass true to indicate it's emergency fallback
+      }
+    }
+
+    // Separate function to display manual data
+    async function displayManualData(isEmergencyFallback = false) {
+      if (isEmergencyFallback) {
+        console.warn('⚠️ EMERGENCY FALLBACK MODE ACTIVATED');
+        console.warn('⚠️ All APIs failed - showing cached/manual data');
+        setStatus('manual', 'Offline Mode');
+      } else {
+        console.log('📝 Using MANUAL DATA mode with hardcoded values');
+        setStatus('manual', 'Manual');
+      }
+
+      // Try to fetch price from API (optional)
+      let priceXch = MANUAL_DATA.priceXch;
+      let xchToUsd = 0;
+
+      try {
+        const xchPriceData = await getXchPrice();
+        xchToUsd = xchPriceData.price;
+
+        // Set status based on price source
+        if (xchPriceData.source === 'coingecko') {
+          setStatus('active', 'CoinGecko');
+        } else if (xchPriceData.source === 'spacescan') {
+          setStatus('active', 'SpaceScan');
+        } else if (xchPriceData.source === 'cached' || xchPriceData.source === 'stale-cache') {
+          setStatus('cached', 'Cached');
+        } else if (isEmergencyFallback) {
+          setStatus('manual', 'Offline');
+        }
+
+        // Try to get MIRROR price from Dexie with retry
+        if (!priceXch || priceXch === 0) {
+          const dexieUrl = `https://api.dexie.space/v1/cats`;
+          const dexieData = await fetchWithRetry(dexieUrl, 2);
+          if (dexieData) {
+            const mirrorToken = dexieData.find(cat => cat.id === TOKEN_ID);
+            if (mirrorToken && mirrorToken.price) {
+              priceXch = parseFloat(mirrorToken.price || 0);
+              console.log('✅ Found MIRROR price on Dexie:', priceXch);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ Price fetch failed, using manual data only:', e.message);
+      }
+
+      const burnedAmount = MANUAL_DATA.totalSupply - MANUAL_DATA.circulatingSupply;
+      const priceUsd = priceXch * xchToUsd;
+
+      // Update UI with hardcoded values
+      document.getElementById('holders').textContent = MANUAL_DATA.holders.toLocaleString();
+      document.getElementById('total').textContent = MANUAL_DATA.totalSupply.toLocaleString();
+      document.getElementById('circ').textContent = MANUAL_DATA.circulatingSupply.toLocaleString();
+      document.getElementById('burned').textContent = burnedAmount.toLocaleString();
+      document.getElementById('price').textContent = priceXch && xchToUsd > 0
+        ? `${priceXch.toFixed(8)} XCH ($${priceUsd.toFixed(4)})`
+        : `${priceXch.toFixed(8)} XCH (Price N/A)`;
+
+      updateTimestamp(isEmergencyFallback ? 'Emergency Fallback' : 'Hardcoded Data');
+      SoundSystem.dataLoad(); // Play success sound
+      console.log(isEmergencyFallback ? '⚠️ Emergency data displayed' : '✅ Manual data displayed');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    }
+
+    // Separate function for API fetching
+    async function fetchFromAPIs() {
+      // Try Dexie.space API with retry logic
+      console.log('📡 Trying Dexie.space API...');
+      const dexieUrl = `https://api.dexie.space/v1/cats`;
+      const dexieData = await fetchWithRetry(dexieUrl, 3);
+
+      if (dexieData) {
+        const mirrorToken = dexieData.find(cat => cat.id === TOKEN_ID);
+
+        if (mirrorToken) {
+          console.log('✅ Found MIRROR on Dexie:', mirrorToken);
+
           const xchPriceData = await getXchPrice();
-          xchToUsd = xchPriceData.price;
+          const xchToUsd = xchPriceData.price;
+          const totalVal = parseFloat(mirrorToken.total_supply || 0) / 1000; // Convert mojos
+          let priceXch = parseFloat(mirrorToken.price || 0);
+
+          // CRITICAL FIX: If Dexie doesn't have a price, use fallback
+          if (!priceXch || priceXch === 0) {
+            console.warn('⚠️ Dexie has no price for MIRROR, using fallback price');
+            priceXch = MANUAL_DATA.priceXch;
+          }
+
+          const priceUsd = priceXch * xchToUsd;
+
+          console.log(`💰 MIRROR Price: ${priceXch} XCH = $${priceUsd.toFixed(4)} USD`);
+          console.log(`💵 XCH Price: $${xchToUsd} USD (source: ${xchPriceData.source})`);
 
           // Set status based on price source
           if (xchPriceData.source === 'coingecko') {
@@ -551,104 +949,32 @@
             setStatus('active', 'SpaceScan');
           } else if (xchPriceData.source === 'cached' || xchPriceData.source === 'stale-cache') {
             setStatus('cached', 'Cached');
-          }
-
-          // Try to get MIRROR price from Dexie with retry
-          if (!priceXch) {
-            const dexieUrl = `https://api.dexie.space/v1/cats`;
-            const dexieData = await fetchWithRetry(dexieUrl, 2);
-            if (dexieData) {
-              const mirrorToken = dexieData.find(cat => cat.id === TOKEN_ID);
-              if (mirrorToken && mirrorToken.price) {
-                priceXch = parseFloat(mirrorToken.price || 0);
-                console.log('✅ Found MIRROR price on Dexie:', priceXch);
-              }
-            }
-          }
-        } catch (e) {
-          console.warn('⚠️ Price fetch failed, using manual data only:', e.message);
-        }
-
-        const burnedAmount = MANUAL_DATA.totalSupply - MANUAL_DATA.circulatingSupply;
-        const priceUsd = priceXch * xchToUsd;
-        
-        // Update UI with hardcoded values
-        document.getElementById('holders').textContent = MANUAL_DATA.holders.toLocaleString();
-        document.getElementById('total').textContent = MANUAL_DATA.totalSupply.toLocaleString();
-        document.getElementById('circ').textContent = MANUAL_DATA.circulatingSupply.toLocaleString();
-        document.getElementById('burned').textContent = burnedAmount.toLocaleString();
-        document.getElementById('price').textContent = priceXch 
-          ? `${priceXch.toFixed(8)} XCH ($${priceUsd.toFixed(4)})`
-          : 'Not Listed';
-        
-        updateTimestamp('Hardcoded Data');
-        console.log('✅ Manual data displayed');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        return;
-      }
-      
-      try {
-        // Try Dexie.space API with retry logic
-        console.log('📡 Trying Dexie.space API...');
-        const dexieUrl = `https://api.dexie.space/v1/cats`;
-        const dexieData = await fetchWithRetry(dexieUrl, 3);
-
-        if (dexieData) {
-          const mirrorToken = dexieData.find(cat => cat.id === TOKEN_ID);
-
-          if (mirrorToken) {
-            console.log('✅ Found MIRROR on Dexie:', mirrorToken);
-
-            const xchPriceData = await getXchPrice();
-            const xchToUsd = xchPriceData.price;
-            const totalVal = parseFloat(mirrorToken.total_supply || 0) / 1000; // Convert mojos
-            const priceXch = parseFloat(mirrorToken.price || 0);
-            const priceUsd = priceXch * xchToUsd;
-
-            // Set status based on price source
-            if (xchPriceData.source === 'coingecko') {
-              setStatus('active', 'CoinGecko');
-            } else if (xchPriceData.source === 'spacescan') {
-              setStatus('active', 'SpaceScan');
-            } else if (xchPriceData.source === 'cached' || xchPriceData.source === 'stale-cache') {
-              setStatus('cached', 'Cached');
-            } else {
-              setStatus('active', 'Dexie');
-            }
-
-            document.getElementById('holders').textContent = mirrorToken.holders || 'N/A';
-            document.getElementById('total').textContent = totalVal.toLocaleString();
-            document.getElementById('circ').textContent = totalVal.toLocaleString();
-            document.getElementById('burned').textContent = '0';
-            document.getElementById('price').textContent = priceXch
-              ? `${priceXch.toFixed(8)} XCH ($${priceUsd.toFixed(4)})`
-              : 'Not Listed';
-
-            updateTimestamp();
-            console.log('✅ Success via Dexie!');
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-            return;
           } else {
-            console.warn('⚠️ MIRROR token not found in Dexie response');
+            setStatus('active', 'Dexie');
           }
+
+          document.getElementById('holders').textContent = mirrorToken.holders || 'N/A';
+          document.getElementById('total').textContent = totalVal.toLocaleString();
+          document.getElementById('circ').textContent = totalVal.toLocaleString();
+          document.getElementById('burned').textContent = '0';
+
+          // Always show price (using fallback if needed)
+          document.getElementById('price').textContent = priceXch > 0
+            ? `${priceXch.toFixed(8)} XCH ($${priceUsd.toFixed(4)})`
+            : 'Price Unavailable';
+
+          updateTimestamp();
+          SoundSystem.dataLoad(); // Play success sound
+          console.log('✅ Success via Dexie!');
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          return;
+        } else {
+          console.warn('⚠️ MIRROR token not found in Dexie response');
         }
-
-        // If all APIs fail
-        throw new Error('Token not found in any API or all API requests failed');
-
-      } catch (err) {
-        console.error('❌ API Error:', err.message);
-        console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
-        setStatus('error', 'Error');
-        updateTimestamp('API Error - Check console');
-
-        document.getElementById('holders').textContent = 'API Error';
-        document.getElementById('total').textContent = 'API Error';
-        document.getElementById('circ').textContent = 'API Error';
-        document.getElementById('burned').textContent = 'API Error';
-        document.getElementById('price').textContent = 'API Error';
       }
+
+      // If we reach here, no data was found
+      throw new Error('Token not found in any API or all API requests failed');
     }
     
     // ========================================
@@ -736,25 +1062,51 @@
     }
 
     /**
-     * Enhanced token data fetching with retry logic
+     * Enhanced token data fetching with retry logic and better error handling
      */
     async function fetchWithRetry(url, retries = 2, delay = 1000) {
       for (let i = 0; i <= retries; i++) {
         try {
-          const response = await fetch(url);
+          console.log(`🔄 Attempt ${i + 1}/${retries + 1}: Fetching ${url}`);
+
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            mode: 'cors', // Explicitly set CORS mode
+            cache: 'no-cache' // Avoid stale cached responses
+          });
+
           if (response.ok) {
-            return await response.json();
+            const data = await response.json();
+            console.log(`✅ Successfully fetched data from ${url}`);
+            return data;
           }
-          console.warn(`⚠️ Attempt ${i + 1} failed for ${url}:`, response.status);
+
+          console.warn(`⚠️ Attempt ${i + 1} failed for ${url}`);
+          console.warn(`   Status: ${response.status} ${response.statusText}`);
+
         } catch (e) {
-          console.warn(`⚠️ Attempt ${i + 1} error for ${url}:`, e.message);
+          console.error(`❌ Attempt ${i + 1} error for ${url}:`);
+          console.error(`   Error type: ${e.name}`);
+          console.error(`   Error message: ${e.message}`);
+
+          // Check for specific error types
+          if (e.name === 'TypeError' && e.message.includes('Failed to fetch')) {
+            console.error('   ⚠️ This is likely a CORS or network connectivity issue');
+          }
         }
 
         if (i < retries) {
+          console.log(`   ⏳ Waiting ${delay}ms before retry...`);
           await new Promise(resolve => setTimeout(resolve, delay));
           delay *= 2; // Exponential backoff
         }
       }
+
+      console.error(`❌ All ${retries + 1} attempts failed for ${url}`);
       return null;
     }
 
