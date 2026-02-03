@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<!--
+  ignore the archive - Link Collection
+  A curated list of links for the MIRROR community
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ignore the archive</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap');
+
+    :root {
+      --bg-primary: #090a0f;
+      --bg-secondary: #1b2735;
+      --accent-color: #ff9500;
+      --text-primary: #e0e0e0;
+      --text-secondary: #9aa2ac;
+      --glass-bg: rgba(34, 139, 34, 0.1);
+      --card-bg: linear-gradient(145deg, #1a1a2e, #16213e);
+      --link-hover: #00ff88;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at bottom, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+      font-family: 'Orbitron', sans-serif;
+      color: var(--text-primary);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Galaxy background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse at 20% 30%, rgba(120, 40, 200, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(30, 100, 200, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(200, 50, 150, 0.1) 0%, transparent 60%);
+      animation: galaxyShift 60s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes galaxyShift {
+      0%, 100% { opacity: 0.6; transform: scale(1) rotate(0deg); }
+      50% { opacity: 0.8; transform: scale(1.1) rotate(5deg); }
+    }
+
+    /* Stars */
+    .stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle linear infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* Container */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-shadow: 0 0 20px rgba(255, 149, 0, 0.5);
+      margin-bottom: 10px;
+      letter-spacing: 3px;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+    }
+
+    /* Back link */
+    .back-link {
+      display: inline-block;
+      margin-bottom: 30px;
+      color: var(--accent-color);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+      color: var(--link-hover);
+      text-shadow: 0 0 10px var(--link-hover);
+    }
+
+    /* Link sections */
+    .link-section {
+      margin-bottom: 40px;
+    }
+
+    .link-section h2 {
+      font-size: 1.1rem;
+      color: var(--accent-color);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 149, 0, 0.3);
+      letter-spacing: 2px;
+    }
+
+    /* Link cards */
+    .link-card {
+      display: block;
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .link-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .link-card:hover::before {
+      left: 100%;
+    }
+
+    .link-card:hover {
+      border-color: var(--accent-color);
+      transform: translateX(10px);
+      box-shadow: 0 0 30px rgba(255, 149, 0, 0.2);
+    }
+
+    .link-card h3 {
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .link-card h3 .icon {
+      font-size: 1.2rem;
+    }
+
+    .link-card p {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .link-card .url {
+      font-size: 0.65rem;
+      color: rgba(0, 255, 136, 0.6);
+      margin-top: 10px;
+      word-break: break-all;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    footer p {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+      .link-card {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars" id="starsContainer"></div>
+
+  <div class="container">
+    <a href="index.html" class="back-link">&larr; BACK TO MULTIPASS</a>
+
+    <header>
+      <h1>ignore the archive</h1>
+      <p>A curated collection of links</p>
+    </header>
+
+    <section class="link-section">
+      <h2>MIRROR Resources</h2>
+
+      <a href="https://dexie.space/offers/col1z0ef7w5n4vq9qkue67y8jnwumd9wn2zn7cjwvceuy9zjgmmfqvvsjjsgvs/xch" class="link-card" target="_blank" rel="noopener">
+        <h3><span class="icon">💱</span> Dexie.space - MIRROR Trading</h3>
+        <p>Trade MIRROR tokens on the decentralized exchange for Chia blockchain.</p>
+        <span class="url">dexie.space</span>
+      </a>
+
+      <a href="https://www.spacescan.io/cat/0957ed359f099d5846c2c74c42e7c2eb9608b58c32e320e144840e3efab0b747" class="link-card" target="_blank" rel="noopener">
+        <h3><span class="icon">🔍</span> SpaceScan - MIRROR Token</h3>
+        <p>View MIRROR token details, transactions, and analytics on SpaceScan explorer.</p>
+        <span class="url">spacescan.io</span>
+      </a>
+    </section>
+
+    <section class="link-section">
+      <h2>Chia Ecosystem</h2>
+
+      <a href="https://www.chia.net/" class="link-card" target="_blank" rel="noopener">
+        <h3><span class="icon">🌱</span> Chia Network</h3>
+        <p>Official website for Chia blockchain - a new eco-friendly cryptocurrency.</p>
+        <span class="url">chia.net</span>
+      </a>
+
+      <a href="https://dexie.space/" class="link-card" target="_blank" rel="noopener">
+        <h3><span class="icon">🔄</span> Dexie.space</h3>
+        <p>Decentralized exchange for trading CATs (Chia Asset Tokens).</p>
+        <span class="url">dexie.space</span>
+      </a>
+
+      <a href="https://www.spacescan.io/" class="link-card" target="_blank" rel="noopener">
+        <h3><span class="icon">🚀</span> SpaceScan</h3>
+        <p>Chia blockchain explorer with comprehensive analytics and token tracking.</p>
+        <span class="url">spacescan.io</span>
+      </a>
+    </section>
+
+    <section class="link-section">
+      <h2>Community</h2>
+
+      <a href="https://discord.gg/chia" class="link-card" target="_blank" rel="noopener">
+        <h3><span class="icon">💬</span> Chia Discord</h3>
+        <p>Join the official Chia community on Discord for discussions and support.</p>
+        <span class="url">discord.gg/chia</span>
+      </a>
+
+      <a href="https://twitter.com/chia_project" class="link-card" target="_blank" rel="noopener">
+        <h3><span class="icon">🐦</span> Chia on X (Twitter)</h3>
+        <p>Follow Chia Network for the latest updates and announcements.</p>
+        <span class="url">twitter.com/chia_project</span>
+      </a>
+    </section>
+
+    <section class="link-section">
+      <h2>Tools & Resources</h2>
+
+      <a href="https://chialisp.com/" class="link-card" target="_blank" rel="noopener">
+        <h3><span class="icon">📚</span> Chialisp Documentation</h3>
+        <p>Learn Chialisp - the smart contract language for Chia blockchain.</p>
+        <span class="url">chialisp.com</span>
+      </a>
+
+      <a href="https://www.coingecko.com/en/coins/chia" class="link-card" target="_blank" rel="noopener">
+        <h3><span class="icon">📊</span> CoinGecko - XCH</h3>
+        <p>Track Chia (XCH) price, market cap, and trading volume.</p>
+        <span class="url">coingecko.com</span>
+      </a>
+    </section>
+
+    <footer>
+      <p>MIRROR MULTIPASS &middot; ignore the archive</p>
+    </footer>
+  </div>
+
+  <script>
+    // Create twinkling stars
+    function createStars() {
+      const container = document.getElementById('starsContainer');
+      const starCount = 100;
+
+      for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        star.style.animationDelay = Math.random() * 3 + 's';
+        const size = Math.random() * 2 + 1;
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+        container.appendChild(star);
+      }
+    }
+
+    createStars();
+  </script>
+</body>
+</html>
