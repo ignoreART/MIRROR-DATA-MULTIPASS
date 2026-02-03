@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-  ignore the archive - Link Collection
-  A curated list of links
+  ignore the archive - Art Collection Links
+  A curated collection of NFT art across multiple blockchains
 -->
 <html lang="en">
 <head>
@@ -20,6 +20,10 @@
       --glass-bg: rgba(34, 139, 34, 0.1);
       --card-bg: linear-gradient(145deg, #1a1a2e, #16213e);
       --link-hover: #00ff88;
+      --ethereum: #627eea;
+      --polygon: #8247e5;
+      --optimism: #ff0420;
+      --chia: #3aac59;
     }
 
     * {
@@ -126,7 +130,23 @@
       padding-bottom: 10px;
       border-bottom: 1px solid rgba(255, 149, 0, 0.3);
       letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
+
+    .chain-badge {
+      font-size: 0.6rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 400;
+      letter-spacing: 1px;
+    }
+
+    .chain-badge.ethereum { background: var(--ethereum); color: white; }
+    .chain-badge.polygon { background: var(--polygon); color: white; }
+    .chain-badge.optimism { background: var(--optimism); color: white; }
+    .chain-badge.chia { background: var(--chia); color: white; }
 
     /* Link cards */
     .link-card {
@@ -164,7 +184,7 @@
     }
 
     .link-card h3 {
-      font-size: 1rem;
+      font-size: 0.9rem;
       color: var(--text-primary);
       margin-bottom: 8px;
       display: flex;
@@ -176,16 +196,10 @@
       font-size: 1.2rem;
     }
 
-    .link-card p {
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
-    }
-
     .link-card .url {
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       color: rgba(0, 255, 136, 0.6);
-      margin-top: 10px;
+      margin-top: 8px;
       word-break: break-all;
     }
 
@@ -211,6 +225,9 @@
       .link-card {
         padding: 15px;
       }
+      .link-card h3 {
+        font-size: 0.8rem;
+      }
     }
   </style>
 </head>
@@ -220,76 +237,161 @@
   <div class="container">
     <header>
       <h1>ignore the archive</h1>
-      <p>A curated collection of links</p>
+      <p>Art collections across the chains</p>
     </header>
 
+    <!-- CHIA COLLECTIONS -->
     <section class="link-section">
-      <h2>MIRROR Resources</h2>
+      <h2>CHIA <span class="chain-badge chia">CHIA</span></h2>
 
-      <a href="https://dexie.space/offers/col1z0ef7w5n4vq9qkue67y8jnwumd9wn2zn7cjwvceuy9zjgmmfqvvsjjsgvs/xch" class="link-card" target="_blank" rel="noopener">
-        <h3><span class="icon">💱</span> Dexie.space - MIRROR Trading</h3>
-        <p>Trade MIRROR tokens on the decentralized exchange for Chia blockchain.</p>
-        <span class="url">dexie.space</span>
+      <a href="https://mintgarden.io/collections/ignoreart-col1svj4ejqrme4fr5279nqdrdd0mh43pqwen6sx60d7k4ldlwj2g0rq99ueg6?tab=items" class="link-card" target="_blank" rel="noopener">
+        <h3>ignoreART</h3>
+        <span class="url">mintgarden.io</span>
       </a>
 
-      <a href="https://www.spacescan.io/cat/0957ed359f099d5846c2c74c42e7c2eb9608b58c32e320e144840e3efab0b747" class="link-card" target="_blank" rel="noopener">
-        <h3><span class="icon">🔍</span> SpaceScan - MIRROR Token</h3>
-        <p>View MIRROR token details, transactions, and analytics on SpaceScan explorer.</p>
-        <span class="url">spacescan.io</span>
+      <a href="https://mintgarden.io/collections/one-of-ones-by-ignore-col15rwf8zrl5r7nylsgqzand65nrcxq3dukpc4pp6y4e0acyhwql3fsfqgd8l" class="link-card" target="_blank" rel="noopener">
+        <h3>One of Ones by Ignore</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/ignore-this-album-col1qpp7lgxwe3z8kq79jh8mvxqf7ywjdsaafehvudlslt54yxluue6s8y9azz?tab=items" class="link-card" target="_blank" rel="noopener">
+        <h3>Ignore This Album</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/q1-phunk-memes-col10muwyfkmswhzm0mxpluykp59ukusu2ntg5zmwmtffgrfh85cfplspdkdzr" class="link-card" target="_blank" rel="noopener">
+        <h3>Q1 Phunk Memes</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/a-phunks-life-col139kht6m6f5fk56rf9xgzaxtwe7ev2l6x3wxtll2us55esdhgwyfqwses4n?tab=items" class="link-card" target="_blank" rel="noopener">
+        <h3>A Phunk's Life</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/a-bepe-legacy-col1xtf8ccqw79gydl4ll9kqp3r8ke9hx6a63sq4pdfymgw9sk768zyshmwsre" class="link-card" target="_blank" rel="noopener">
+        <h3>A Bepe Legacy</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/married-to-the-chain-col1jegf7zqhcgnuvttwqc7xya2f46apwvx47rf8ck3kn4xj8jj498vs65t39l" class="link-card" target="_blank" rel="noopener">
+        <h3>Married to the Chain</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/the-contract-col1p3fa4czx4nkj4fxd9tdfvku8dem5ujvcm29rlaxwnazcgpnm968sca3r8w" class="link-card" target="_blank" rel="noopener">
+        <h3>The Contract</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/keys-to-the-lot-col1fy79alhh6pqa4nhswl2f3vk2ch6mnc23thtgrd35wp5t7fx364qqvhqcel?tab=items" class="link-card" target="_blank" rel="noopener">
+        <h3>Keys to the Lot</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/not-4-sale-col1arv7mewwuak8mxsj2as2m60qqkwl96kfr2mrq6w7dpmag56d95hqj8jnds" class="link-card" target="_blank" rel="noopener">
+        <h3>Not 4 Sale</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/never-too-late-4-%24love-col1e46xagyp0pasc08n8sv2k42zgcs89a0jqj6qsjxpda84jggltrpqtq4jk0" class="link-card" target="_blank" rel="noopener">
+        <h3>Never Too Late 4 $Love</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/2-die-phor-col1qmaessdcahlwmfnukfee2qm8780x46vxxwwamgqls3p5925vtm3s5qldp0" class="link-card" target="_blank" rel="noopener">
+        <h3>2 Die Phor</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/%F0%9D%93%9F%F0%9D%93%9E%F0%9D%93%A2%F0%9D%93%A3%F0%9D%93%94%F0%9D%93%A1%F0%9D%93%A2%2C-%F0%9D%93%9F%F0%9D%93%98%F0%9D%93%92%F0%9D%93%A3%F0%9D%93%A4%F0%9D%93%A1%F0%9D%93%94-col174s54ksegcr8kul6nwuwcclxw9vxw0s7z8kzamzw0qwgnq2d9f4q23d0n6?tab=items" class="link-card" target="_blank" rel="noopener">
+        <h3>Posters, Picture</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/%F0%9F%92%97-col19slj662xz7v9v3x3ay30l544d47g2v6824qrsmuuyxffugtwlv4sd8fwd0" class="link-card" target="_blank" rel="noopener">
+        <h3>Hearts</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/saturnmoonmatrix-%26-the-man-in–col1f6ue07knsvz49wncjae902l4ldrmlqa9u3p3caranmzjx9erpulsdzfhzt?tab=items" class="link-card" target="_blank" rel="noopener">
+        <h3>SaturnMoonMatrix & The Man In</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/provisions-of-paint-%3A-a-2021-m-col1r9f4etqtc8wu0uhld86ptcx3kds9rmpfkxkcgq06gsn8w7ulk6zs7kqpgt" class="link-card" target="_blank" rel="noopener">
+        <h3>Provisions of Paint: A 2021</h3>
+        <span class="url">mintgarden.io</span>
+      </a>
+
+      <a href="https://mintgarden.io/collections/r3nd3rs-col1z99jnk9ptp4yp86n83s030wdtjdte5reyz74dqj2h797kgwdc0kq2l0r26" class="link-card" target="_blank" rel="noopener">
+        <h3>R3ND3RS</h3>
+        <span class="url">mintgarden.io</span>
       </a>
     </section>
 
+    <!-- ETHEREUM COLLECTIONS -->
     <section class="link-section">
-      <h2>Chia Ecosystem</h2>
+      <h2>ETHEREUM <span class="chain-badge ethereum">ETH</span></h2>
 
-      <a href="https://www.chia.net/" class="link-card" target="_blank" rel="noopener">
-        <h3><span class="icon">🌱</span> Chia Network</h3>
-        <p>Official website for Chia blockchain - a new eco-friendly cryptocurrency.</p>
-        <span class="url">chia.net</span>
+      <a href="https://opensea.io/collection/abundant-abstractions" class="link-card" target="_blank" rel="noopener">
+        <h3>Abundant Abstractions</h3>
+        <span class="url">opensea.io</span>
       </a>
 
-      <a href="https://dexie.space/" class="link-card" target="_blank" rel="noopener">
-        <h3><span class="icon">🔄</span> Dexie.space</h3>
-        <p>Decentralized exchange for trading CATs (Chia Asset Tokens).</p>
-        <span class="url">dexie.space</span>
+      <a href="https://opensea.io/collection/didispieces" class="link-card" target="_blank" rel="noopener">
+        <h3>Didi's Pieces</h3>
+        <span class="url">opensea.io</span>
       </a>
 
-      <a href="https://www.spacescan.io/" class="link-card" target="_blank" rel="noopener">
-        <h3><span class="icon">🚀</span> SpaceScan</h3>
-        <p>Chia blockchain explorer with comprehensive analytics and token tracking.</p>
-        <span class="url">spacescan.io</span>
+      <a href="https://opensea.io/collection/death-of-didi" class="link-card" target="_blank" rel="noopener">
+        <h3>Death of Didi</h3>
+        <span class="url">opensea.io</span>
+      </a>
+
+      <a href="https://opensea.io/collection/blackbook-specials" class="link-card" target="_blank" rel="noopener">
+        <h3>Blackbook Specials</h3>
+        <span class="url">opensea.io</span>
+      </a>
+
+      <a href="https://opensea.io/collection/you-ll-never-believe-it-4sltL43MAp" class="link-card" target="_blank" rel="noopener">
+        <h3>You'll Never Believe It</h3>
+        <span class="url">opensea.io</span>
+      </a>
+
+      <a href="https://opensea.io/collection/field-of-grim-tMAatGBWfk" class="link-card" target="_blank" rel="noopener">
+        <h3>Field of Grim</h3>
+        <span class="url">opensea.io</span>
+      </a>
+
+      <a href="https://opensea.io/collection/heads-grim-DUjKtlfgWC" class="link-card" target="_blank" rel="noopener">
+        <h3>Heads Grim</h3>
+        <span class="url">opensea.io</span>
       </a>
     </section>
 
+    <!-- POLYGON COLLECTIONS -->
     <section class="link-section">
-      <h2>Community</h2>
+      <h2>POLYGON <span class="chain-badge polygon">MATIC</span></h2>
 
-      <a href="https://discord.gg/chia" class="link-card" target="_blank" rel="noopener">
-        <h3><span class="icon">💬</span> Chia Discord</h3>
-        <p>Join the official Chia community on Discord for discussions and support.</p>
-        <span class="url">discord.gg/chia</span>
+      <a href="https://opensea.io/collection/metaworst" class="link-card" target="_blank" rel="noopener">
+        <h3>Metaworst</h3>
+        <span class="url">opensea.io</span>
       </a>
 
-      <a href="https://twitter.com/chia_project" class="link-card" target="_blank" rel="noopener">
-        <h3><span class="icon">🐦</span> Chia on X (Twitter)</h3>
-        <p>Follow Chia Network for the latest updates and announcements.</p>
-        <span class="url">twitter.com/chia_project</span>
+      <a href="https://opensea.io/collection/ch33r-the-fuck-up-tBmhvySSEE" class="link-card" target="_blank" rel="noopener">
+        <h3>Ch33r the Fuck Up</h3>
+        <span class="url">opensea.io</span>
       </a>
     </section>
 
+    <!-- OPTIMISM COLLECTIONS -->
     <section class="link-section">
-      <h2>Tools & Resources</h2>
+      <h2>OPTIMISM <span class="chain-badge optimism">OP</span></h2>
 
-      <a href="https://chialisp.com/" class="link-card" target="_blank" rel="noopener">
-        <h3><span class="icon">📚</span> Chialisp Documentation</h3>
-        <p>Learn Chialisp - the smart contract language for Chia blockchain.</p>
-        <span class="url">chialisp.com</span>
-      </a>
-
-      <a href="https://www.coingecko.com/en/coins/chia" class="link-card" target="_blank" rel="noopener">
-        <h3><span class="icon">📊</span> CoinGecko - XCH</h3>
-        <p>Track Chia (XCH) price, market cap, and trading volume.</p>
-        <span class="url">coingecko.com</span>
+      <a href="https://opensea.io/collection/ignore-the-collection" class="link-card" target="_blank" rel="noopener">
+        <h3>Ignore the Collection</h3>
+        <span class="url">opensea.io</span>
       </a>
     </section>
 
