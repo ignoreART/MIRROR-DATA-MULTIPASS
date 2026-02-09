@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRROR // Algorithmic Art</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// ─── MIRROR Generative Flow Field ───────────────────────────────
+// Perlin-noise driven particle flow with spectral color mapping
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ─── Simplex-style noise (compact implementation) ───────────────
+const PERM = new Uint8Array(512);
+const GRAD = [[1,1],[-1,1],[1,-1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]];
+(function seedNoise() {
+  const p = new Uint8Array(256);
+  for (let i = 0; i < 256; i++) p[i] = i;
+  for (let i = 255; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [p[i], p[j]] = [p[j], p[i]];
+  }
+  for (let i = 0; i < 512; i++) PERM[i] = p[i & 255];
+})();
+
+function noise2D(x, y) {
+  const xi = Math.floor(x) & 255, yi = Math.floor(y) & 255;
+  const xf = x - Math.floor(x), yf = y - Math.floor(y);
+  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+  const aa = PERM[PERM[xi] + yi], ab = PERM[PERM[xi] + yi + 1];
+  const ba = PERM[PERM[xi + 1] + yi], bb = PERM[PERM[xi + 1] + yi + 1];
+  const ga = GRAD[aa & 7], gb = GRAD[ab & 7], gc = GRAD[ba & 7], gd = GRAD[bb & 7];
+  const d1 = ga[0] * xf + ga[1] * yf;
+  const d2 = gb[0] * xf + gb[1] * (yf - 1);
+  const d3 = gc[0] * (xf - 1) + gc[1] * yf;
+  const d4 = gd[0] * (xf - 1) + gd[1] * (yf - 1);
+  const x1 = d1 + u * (d3 - d1), x2 = d2 + u * (d4 - d2);
+  return x1 + v * (x2 - x1);
+}
+
+// ─── Color palette ──────────────────────────────────────────────
+function hslToRgb(h, s, l) {
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = l - c / 2;
+  let r, g, b;
+  if (h < 60) { r = c; g = x; b = 0; }
+  else if (h < 120) { r = x; g = c; b = 0; }
+  else if (h < 180) { r = 0; g = c; b = x; }
+  else if (h < 240) { r = 0; g = x; b = c; }
+  else if (h < 300) { r = x; g = 0; b = c; }
+  else { r = c; g = 0; b = x; }
+  return [(r + m) * 255 | 0, (g + m) * 255 | 0, (b + m) * 255 | 0];
+}
+
+// ─── Particles ──────────────────────────────────────────────────
+const NUM = 8000;
+const SCALE = 0.003;
+const SPEED = 1.8;
+const HUE_BASE = Math.random() * 360;
+let zOff = 0;
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.px = this.x;
+    this.py = this.y;
+    this.life = 200 + Math.random() * 600;
+    this.age = 0;
+    this.hue = HUE_BASE + Math.random() * 90 - 45;
+  }
+  update() {
+    this.px = this.x;
+    this.py = this.y;
+
+    const n = noise2D(this.x * SCALE, this.y * SCALE + zOff);
+    const angle = n * Math.PI * 4;
+
+    this.x += Math.cos(angle) * SPEED;
+    this.y += Math.sin(angle) * SPEED;
+    this.age++;
+
+    if (this.x < 0 || this.x > W || this.y < 0 || this.y > H || this.age > this.life) {
+      this.reset();
+    }
+  }
+  draw() {
+    const fade = Math.min(1, this.age / 30) * Math.max(0, 1 - (this.age / this.life));
+    const alpha = fade * 0.35;
+    const [r, g, b] = hslToRgb(((this.hue + this.age * 0.15) % 360 + 360) % 360, 0.8, 0.55);
+    ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(this.px, this.py);
+    ctx.lineTo(this.x, this.y);
+    ctx.stroke();
+  }
+}
+
+const particles = Array.from({ length: NUM }, () => new Particle());
+
+// ─── Render loop ────────────────────────────────────────────────
+// Start with a dark canvas
+ctx.fillStyle = '#000';
+ctx.fillRect(0, 0, W, H);
+
+function frame() {
+  // Very subtle fade for trail persistence — art builds up over time
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.004)';
+  ctx.fillRect(0, 0, W, H);
+
+  for (const p of particles) {
+    p.update();
+    p.draw();
+  }
+
+  zOff += 0.0001;
+  requestAnimationFrame(frame);
+}
+
+frame();
+</script>
+</body>
+</html>
